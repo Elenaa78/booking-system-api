@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 import uvicorn
 from datetime import date
@@ -9,6 +10,8 @@ import schemas
 
 models.Base.metadata.create_all(bind=engine)
 
+templates = Jinja2Templates(directory="templates")
+
 app = FastAPI(title="System rezerwacji")
 
 def get_db():
@@ -17,6 +20,16 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+@app.get("/")
+def strona_glowna(request: Request, db: Session = Depends(get_db)):
+    wizyty_z_bazy = db.query(models.WizytaDB).all()
+
+    return templates.TemplateResponse("index.html", {
+        "request": request, 
+        "wizyty": wizyty_z_bazy
+    })
 
 @app.post("/api/wizyty", response_model=schemas.Wizyta)
 def dodaj_wizyte(wizyta: schemas.WizytaCreate, db: Session = Depends(get_db)):

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>System Rezerwacji</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f0f2f5; 
+            margin: 0; 
+            padding: 20px; 
+        }
+
+        h1 { text-align: center; color: #333; margin-bottom: 40px; }
+
+        /* --- UKŁAD STRONY (TO JEST NOWOŚĆ) --- */
+        .kontener {
+            display: flex;       /* To ustawia elementy obok siebie */
+            gap: 30px;           /* Odstęp między lewą a prawą stroną */
+            max_width: 1200px;   /* Maksymalna szerokość całej strony */
+            margin: 0 auto;      /* Wyśrodkowanie na ekranie */
+            align-items: flex-start; /* Żeby elementy nie rozciągały się na siłę */
+        }
+
+        /* Lewa kolumna (Formularz) - zajmuje 35% miejsca */
+        .lewa-strona {
+            flex: 35%;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+        }
+
+        .prawa-strona {
+            flex: 65%;
+        }
+
+        .wizyta { 
+            background: white; 
+            border-left: 5px solid #3498db;
+            padding: 20px; 
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+        }
+
+        input, button { 
+            padding: 12px; 
+            margin: 8px 0; 
+            width: 100%; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            box-sizing: border-box;
+        }
+
+        button { 
+            background-color: #2ecc71; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px; 
+            margin-top: 20px;
+        }
+        button:hover { background-color: #27ae60; }
+        label { font-weight: bold; font-size: 14px; color: #555; }
+    </style>
+</head>
+<body>
+
+    <h1>🏥 Panel Rezerwacji Wizyt</h1>
+
+    <div class="kontener">
+
+        <div class="lewa-strona">
+            <h2 style="margin-top:0">➕ Nowa wizyta</h2>
+            <form id="formRezerwacji">
+                <label>Imię i nazwisko:</label>
+                <input type="text" id="klient" required placeholder="np. Jan Kowalski">
+
+                <label>Data:</label>
+                <input type="date" id="data" required>
+
+                <label>Godzina:</label>
+                <input type="time" id="godzina" required>
+
+                <label>Opis:</label>
+                <input type="text" id="opis" placeholder="np. Konsultacja">
+
+                <button type="submit">Zarezerwuj termin</button>
+            </form>
+        </div>
+
+        <div class="prawa-strona">
+            <h2 style="margin-top:0">📅 Zaplanowane wizyty</h2>
+            
+            {% for wizyta in wizyty %}
+                <div class="wizyta">
+                    <div style="font-size: 1.2em; color: #2980b9; font-weight: bold;">
+                        {{ wizyta.godzina }} <span style="color: #333; font-weight: normal;">- {{ wizyta.data }}</span>
+                    </div>
+                    <div style="font-size: 1.3em; margin: 5px 0;">
+                        👤 {{ wizyta.klient }}
+                    </div>
+                    <div style="color: #7f8c8d;">
+                        📝 {{ wizyta.opis }}
+                    </div>
+                </div>
+            {% else %}
+                <div class="wizyta" style="border-left-color: #ccc;">
+                    <p>📭 Brak zaplanowanych wizyt. Dodaj pierwszą po lewej!</p>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <script>
+        document.getElementById('formRezerwacji').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const dane = {
+                klient: document.getElementById('klient').value,
+                data: document.getElementById('data').value,
+                godzina: document.getElementById('godzina').value,
+                opis: document.getElementById('opis').value
+            };
+
+            const odpowiedz = await fetch('/api/wizyty', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dane)
+            });
+
+            if (odpowiedz.ok) {
+                window.location.reload();
+            } else {
+                const blad = await odpowiedz.json();
+                alert("❌ Błąd: " + blad.detail);
+            }
+        });
+    </script>
+
+</body>
+</html>
