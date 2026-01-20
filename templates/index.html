@@ -4,19 +4,29 @@
     <meta charset="UTF-8">
     <title>System Rezerwacji</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f0f2f5; 
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             margin: 0; 
-            padding: 20px; 
+            padding: 40px 20px;
+            color: #333;
+            min-height: 100vh;
         }
 
-        h1 { text-align: center; color: #333; margin-bottom: 40px; }
+        h1 { 
+            text-align: center; 
+            color: #2c3e50; 
+            margin-bottom: 50px; 
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
 
         .kontener {
             display: flex;
-            gap: 30px;
-            max-width: 1200px;
+            gap: 40px;
+            max-width: 1100px;
             margin: 0 auto;
             align-items: flex-start;
         }
@@ -24,11 +34,12 @@
         .lewa-strona {
             flex: 35%;
             background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             position: sticky;
             top: 20px;
+            border-top: 5px solid #6c5ce7;
         }
 
         .prawa-strona {
@@ -37,70 +48,92 @@
 
         .wizyta { 
             background: white; 
-            border-left: 5px solid #3498db; 
-            padding: 20px; 
-            margin-bottom: 15px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            padding: 20px 25px; 
+            margin-bottom: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             display: flex; 
             justify-content: space-between; 
             align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .wizyta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .wizyta-czas {
+            color: #6c5ce7;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 5px;
         }
 
         input, button { 
-            padding: 12px; 
-            margin: 8px 0; 
+            padding: 15px; 
+            margin: 10px 0; 
             width: 100%; 
-            border: 1px solid #ccc; 
-            border-radius: 5px; 
+            border: 2px solid #eee; 
+            border-radius: 10px; 
             box-sizing: border-box; 
+            font-family: inherit;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #6c5ce7;
+            outline: none;
         }
 
         .btn-glowny { 
-            background-color: #2ecc71; 
+            background-color: #6c5ce7; 
             color: white; 
             border: none; 
             cursor: pointer; 
-            font-weight: bold; 
+            font-weight: 600; 
             font-size: 16px; 
-            margin-top: 10px;
+            margin-top: 20px;
+            letter-spacing: 0.5px;
         }
-        .btn-glowny:hover { background-color: #27ae60; }
+        .btn-glowny:hover { background-color: #5a4ad1; transform: scale(1.02); }
 
         .btn-anuluj {
-            background-color: #95a5a6;
+            background-color: #b2bec3;
+            margin-top: 5px;
             display: none;
         }
-        .btn-anuluj:hover { background-color: #7f8c8d; }
+        .btn-anuluj:hover { background-color: #636e72; }
 
-        .akcje {
-            display: flex;
-            gap: 10px;
-        }
+        .akcje { display: flex; gap: 8px; }
 
-        .btn-usun {
-            background-color: #e74c3c;
+        .btn-usun, .btn-edytuj {
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            border: none;
+            width: auto;
+            margin: 0;
             color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
+            transition: opacity 0.2s;
         }
-        .btn-usun:hover { background-color: #c0392b; }
 
-        .btn-edytuj {
-            background-color: #f1c40f;
-            color: #333;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
+        .btn-edytuj { background-color: #fdcb6e; color: #2d3436; }
+        .btn-usun { background-color: #ff7675; }
+
+        .btn-edytuj:hover, .btn-usun:hover { opacity: 0.8; }
+
+        label { 
+            font-weight: 600; 
+            font-size: 13px; 
+            color: #b2bec3; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            display: block;
         }
-        .btn-edytuj:hover { background-color: #f39c12; }
-
-        label { font-weight: bold; font-size: 14px; color: #555; }
     </style>
 </head>
 <body>
