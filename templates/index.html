@@ -43,7 +43,7 @@
             border-radius: 8px; 
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             display: flex; 
-            justify-content: space-between;
+            justify-content: space-between; 
             align-items: center;
         }
 
@@ -56,16 +56,27 @@
             box-sizing: border-box; 
         }
 
-        .btn-dodaj { 
+        .btn-glowny { 
             background-color: #2ecc71; 
             color: white; 
             border: none; 
             cursor: pointer; 
             font-weight: bold; 
             font-size: 16px; 
-            margin-top: 20px;
+            margin-top: 10px;
         }
-        .btn-dodaj:hover { background-color: #27ae60; }
+        .btn-glowny:hover { background-color: #27ae60; }
+
+        .btn-anuluj {
+            background-color: #95a5a6;
+            display: none;
+        }
+        .btn-anuluj:hover { background-color: #7f8c8d; }
+
+        .akcje {
+            display: flex;
+            gap: 10px;
+        }
 
         .btn-usun {
             background-color: #e74c3c;
@@ -74,10 +85,20 @@
             padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
-            width: auto;
             font-weight: bold;
         }
         .btn-usun:hover { background-color: #c0392b; }
+
+        .btn-edytuj {
+            background-color: #f1c40f;
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-edytuj:hover { background-color: #f39c12; }
 
         label { font-weight: bold; font-size: 14px; color: #555; }
     </style>
@@ -89,7 +110,8 @@
     <div class="kontener">
 
         <div class="lewa-strona">
-            <h2 style="margin-top:0">➕ Nowa wizyta</h2>
+            <h2 style="margin-top:0" id="naglowekFormularza">➕ Nowa wizyta</h2>
+            
             <form id="formRezerwacji">
                 <label>Imię i nazwisko:</label>
                 <input type="text" id="klient" required placeholder="np. Jan Kowalski">
@@ -103,7 +125,9 @@
                 <label>Opis:</label>
                 <input type="text" id="opis" placeholder="np. Konsultacja">
 
-                <button type="submit" class="btn-dodaj">Zarezerwuj termin</button>
+                <button type="submit" class="btn-glowny" id="btnZatwierdz">Zarezerwuj termin</button>
+                
+                <button type="button" class="btn-glowny btn-anuluj" id="btnAnuluj" onclick="resetujFormularz()">Anuluj edycję</button>
             </form>
         </div>
 
@@ -124,13 +148,20 @@
                         </div>
                     </div>
 
-                    <button class="btn-usun" onclick="usunWizyte({{ wizyta.id }})">
-                        Usuń 🗑️
-                    </button>
+                    <div class="akcje">
+                        <button class="btn-edytuj" 
+                            onclick="rozpocznijEdycje({{ wizyta.id }}, '{{ wizyta.klient }}', '{{ wizyta.data }}', '{{ wizyta.godzina }}', '{{ wizyta.opis }}')">
+                            Edytuj ✏️
+                        </button>
+
+                        <button class="btn-usun" onclick="usunWizyte({{ wizyta.id }})">
+                            Usuń 🗑️
+                        </button>
+                    </div>
                 </div>
             {% else %}
                 <div class="wizyta" style="border-left-color: #ccc; display: block;">
-                    <p>📭 Brak zaplanowanych wizyt. Dodaj pierwszą po lewej!</p>
+                    <p>📭 Brak zaplanowanych wizyt.</p>
                 </div>
             {% endfor %}
         </div>
@@ -138,19 +169,62 @@
     </div>
 
     <script>
+        let edytowaneId = null;
+
+        function rozpocznijEdycje(id, klient, data, godzina, opis) {
+            edytowaneId = id;
+
+            document.getElementById('klient').value = klient;
+            document.getElementById('data').value = data;
+            document.getElementById('godzina').value = godzina;
+            document.getElementById('opis').value = opis;
+
+            document.getElementById('naglowekFormularza').innerText = "✏️ Edytuj wizytę";
+            document.getElementById('btnZatwierdz').innerText = "Zapisz zmiany";
+            document.getElementById('btnZatwierdz').style.backgroundColor = "#f39c12";
+            
+            document.getElementById('btnAnuluj').style.display = "block";
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetujFormularz() {
+            edytowaneId = null;
+            document.getElementById('formRezerwacji').reset();
+            
+            document.getElementById('naglowekFormularza').innerText = "➕ Nowa wizyta";
+            document.getElementById('btnZatwierdz').innerText = "Zarezerwuj termin";
+            document.getElementById('btnZatwierdz').style.backgroundColor = "#2ecc71";
+            
+            document.getElementById('btnAnuluj').style.display = "none";
+        }
+
         document.getElementById('formRezerwacji').addEventListener('submit', async function(event) {
             event.preventDefault();
+
             const dane = {
                 klient: document.getElementById('klient').value,
                 data: document.getElementById('data').value,
                 godzina: document.getElementById('godzina').value,
                 opis: document.getElementById('opis').value
             };
-            const odpowiedz = await fetch('/api/wizyty', {
-                method: 'POST',
+
+            let url, metoda;
+
+            if (edytowaneId === null) {
+                url = '/api/wizyty';
+                metoda = 'POST';
+            } else {
+                url = '/api/wizyty/' + edytowaneId;
+                metoda = 'PUT';
+            }
+
+            const odpowiedz = await fetch(url, {
+                method: metoda,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dane)
             });
+
             if (odpowiedz.ok) {
                 window.location.reload();
             } else {
@@ -163,7 +237,6 @@
             if (!confirm("Czy na pewno chcesz odwołać tę wizytę?")) {
                 return;
             }
-
             const odpowiedz = await fetch('/api/wizyty/' + id, {
                 method: 'DELETE'
             });
