@@ -24,7 +24,7 @@ def get_db():
 
 @app.get("/")
 def strona_glowna(request: Request, db: Session = Depends(get_db)):
-    wizyty_z_bazy = db.query(models.WizytaDB).all()
+    wizyty_z_bazy = db.query(models.WizytaDB).order_by(models.WizytaDB.data, models.WizytaDB.godzina).all()
 
     return templates.TemplateResponse("index.html", {
         "request": request, 
@@ -105,7 +105,7 @@ def pobierz_wizyte(id_wizyty: int, db: Session = Depends(get_db)):
 @app.get("/api/wizyty", response_model=list[schemas.Wizyta])
 def pobierz_wizyty(db: Session = Depends(get_db)):
 
-    return db.query(models.WizytaDB).all()
+    return db.query(models.WizytaDB).order_by(models.WizytaDB.data, models.WizytaDB.godzina).all()
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
