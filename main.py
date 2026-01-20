@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 import uvicorn
+from datetime import date
 
 from database import engine, SessionLocal
 import models
@@ -19,6 +20,23 @@ def get_db():
 
 @app.post("/api/wizyty", response_model=schemas.Wizyta)
 def dodaj_wizyte(wizyta: schemas.WizytaCreate, db: Session = Depends(get_db)):
+
+    zajety_termin = db.query(models.WizytaDB).filter(
+        models.WizytaDB.data == wizyta.data,
+        models.WizytaDB.godzina == wizyta.godzina
+    ).first()
+
+    if zajety_termin:
+        raise HTTPException(status_code=400, detail="Ten termin jest już zajęty")
+    
+    dzisiaj = date.today()
+    if date.fromisoformat(wizyta.data) < dzisiaj:
+        raise HTTPException(status_code=400, detail="Zła data")
+    
+    godzina_liczba = int(wizyta.godzina.split(":")[0])
+    if godzina_liczba < 8 or godzina_liczba >= 16:
+        raise HTTPException(status_code=400, detail="Pracujemy tylko między 8:00 a 16:00")
+
     db_wizyta = models.WizytaDB(
         klient = wizyta.klient,
         data = wizyta.data,
