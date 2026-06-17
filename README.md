@@ -2,6 +2,9 @@
 
 A comprehensive full-stack web application designed for managing appointment reservations. This project provides a complete set of CRUD operations, allowing users to seamlessly schedule, view, update, and cancel appointments through a modern, responsive user interface.
 
+<img width="2537" height="1265" alt="image" src="https://github.com/user-attachments/assets/690fd3e0-2fe0-4ea3-927c-338ce72530ce" />
+
+
 ## 🚀 Technologies
 
 The project is built with a modern tech stack, focusing on performance and clean architecture:
